@@ -50,26 +50,26 @@ export default function MissionPanel({ vehicle, route }: MissionPanelProps) {
 	return (
 		<section className="mission-panel">
 			<div className="mission-panel__grid">
-				<div className="mission-panel__item">
-					<span className="mission-panel__label">Mission</span>
+				<div className="panel-item-base mission-panel__item">
+					<span className="label-base">Mission</span>
 					<span className="mission-panel__value">
 						{vehicle.missionId ?? '—'}
 					</span>
 				</div>
-				<div className="mission-panel__item">
-					<span className="mission-panel__label">Current</span>
+				<div className="panel-item-base mission-panel__item">
+					<span className="label-base">Current</span>
 					<span className="mission-panel__value">
 						{currentWaypoint != null ? `WP ${currentWaypoint}` : '—'}
 					</span>
 				</div>
-				<div className="mission-panel__item">
-					<span className="mission-panel__label">Next</span>
+				<div className="panel-item-base mission-panel__item">
+					<span className="label-base">Next</span>
 					<span className="mission-panel__value">
 						{nextWaypoint != null ? `WP ${nextWaypoint}` : '—'}
 					</span>
 				</div>
-				<div className="mission-panel__item">
-					<span className="mission-panel__label">Progress</span>
+				<div className="panel-item-base mission-panel__item">
+					<span className="label-base">Progress</span>
 					<span className="mission-panel__value">{progress ?? '—'}</span>
 				</div>
 			</div>

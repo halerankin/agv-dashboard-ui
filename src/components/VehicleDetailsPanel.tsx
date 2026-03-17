@@ -99,6 +99,7 @@ export default function VehicleDetailsPanel({
                     'alert',
                     'ack',
                     'ui',
+                    'telemetry',
                 ]);
                 const operationalEvents = vehicleEvents.filter((e) =>
                     operationalKinds.has(e.kind)

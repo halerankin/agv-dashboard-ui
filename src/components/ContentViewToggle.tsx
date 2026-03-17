@@ -16,14 +16,14 @@ export default function ContentViewToggle({
 				<div className="toolbar__view-buttons">
 					<button
 						type="button"
-						className={`toolbar__view-btn ${value === 'detail' ? 'toolbar__view-btn--active' : ''}`}
+						className={`btn-base toolbar__view-btn ${value === 'detail' ? 'toolbar__view-btn--active' : ''}`}
 						onClick={() => onChange('detail')}
 					>
 						Vehicle
 					</button>
 					<button
 						type="button"
-						className={`toolbar__view-btn ${value === 'events' ? 'toolbar__view-btn--active' : ''}`}
+						className={`btn-base toolbar__view-btn ${value === 'events' ? 'toolbar__view-btn--active' : ''}`}
 						onClick={() => onChange('events')}
 					>
 						Events

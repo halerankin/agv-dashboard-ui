@@ -42,7 +42,7 @@ export default function MapControlPanel({
 			<div className="map-control-panel__group">
 				<button
 					type="button"
-					className="map-control-panel__button"
+					className="btn-base map-control-panel__button"
 					onClick={onZoomOut}
 					aria-label="Zoom out"
 				>
@@ -51,7 +51,7 @@ export default function MapControlPanel({
 				<span className="map-control-panel__zoom">{zoom}</span>
 				<button
 					type="button"
-					className="map-control-panel__button"
+					className="btn-base map-control-panel__button"
 					onClick={onZoomIn}
 					aria-label="Zoom in"
 				>
@@ -61,7 +61,7 @@ export default function MapControlPanel({
 			<div className="map-control-panel__group">
 				<button
 					type="button"
-					className={`map-control-panel__button map-control-panel__button--toggle ${focusOnSelected ? 'map-control-panel__button--active' : ''}`}
+					className={`btn-base map-control-panel__button map-control-panel__button--toggle ${focusOnSelected ? 'map-control-panel__button--active' : ''}`}
 					onClick={onFocusToggle}
 					disabled={!selectedVehicleId}
 					aria-label="Focus selected vehicle"
@@ -75,7 +75,7 @@ export default function MapControlPanel({
 					<button
 						key={value}
 						type="button"
-						className={`map-control-panel__weight-btn ${routeLineWeight === value ? 'map-control-panel__weight-btn--active' : ''}`}
+						className={`btn-base map-control-panel__weight-btn ${routeLineWeight === value ? 'map-control-panel__weight-btn--active' : ''}`}
 						onClick={() => onRouteLineWeightChange(value)}
 						aria-pressed={routeLineWeight === value}
 						title={`Route line: ${label}`}
@@ -91,7 +91,7 @@ export default function MapControlPanel({
 			<div className="map-control-panel__group">
 				<button
 					type="button"
-					className={`map-control-panel__button map-control-panel__button--toggle ${showRoutes ? 'map-control-panel__button--active' : ''}`}
+					className={`btn-base map-control-panel__button map-control-panel__button--toggle ${showRoutes ? 'map-control-panel__button--active' : ''}`}
 					onClick={onRoutesToggle}
 					aria-pressed={showRoutes}
 					title="Toggle routes"
@@ -100,7 +100,7 @@ export default function MapControlPanel({
 				</button>
 				<button
 					type="button"
-					className={`map-control-panel__button map-control-panel__button--toggle ${showWaypoints ? 'map-control-panel__button--active' : ''}`}
+					className={`btn-base map-control-panel__button map-control-panel__button--toggle ${showWaypoints ? 'map-control-panel__button--active' : ''}`}
 					onClick={onWaypointsToggle}
 					aria-pressed={showWaypoints}
 					title="Toggle waypoints"

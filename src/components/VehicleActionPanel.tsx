@@ -40,7 +40,7 @@ export default function VehicleActionPanel({
 					<button
 						key={action}
 						type="button"
-						className="vehicle-action-panel__button"
+						className="btn-base vehicle-action-panel__button"
 						onClick={() => onAction(vehicle.id, action)}
 					>
 						{ACTION_LABELS[action]}

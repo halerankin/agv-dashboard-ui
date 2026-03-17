@@ -40,29 +40,29 @@ export default function FleetSummaryPanel({
 				<span className="fleet-summary-panel__title">Fleet</span>
 			</div>
 			<div className="fleet-summary-panel__grid">
-				<div className="fleet-summary-panel__item">
+				<div className="panel-item-base fleet-summary-panel__item">
 					<span className="fleet-summary-panel__value">{total}</span>
-					<span className="fleet-summary-panel__label">vehicles</span>
+					<span className="label-base">vehicles</span>
 				</div>
-				<div className="fleet-summary-panel__item">
+				<div className="panel-item-base fleet-summary-panel__item">
 					<span className="fleet-summary-panel__value">{badComms}</span>
-					<span className="fleet-summary-panel__label">bad comms</span>
+					<span className="label-base">bad comms</span>
 				</div>
-				<div className="fleet-summary-panel__item">
+				<div className="panel-item-base fleet-summary-panel__item">
 					<span className="fleet-summary-panel__value">{withAlerts}</span>
-					<span className="fleet-summary-panel__label">with alerts</span>
+					<span className="label-base">with alerts</span>
 				</div>
-				<div className="fleet-summary-panel__item">
+				<div className="panel-item-base fleet-summary-panel__item">
 					<span className="fleet-summary-panel__value">{unackedTotal}</span>
-					<span className="fleet-summary-panel__label">unacked</span>
+					<span className="label-base">unacked</span>
 				</div>
-				<div className="fleet-summary-panel__item">
+				<div className="panel-item-base fleet-summary-panel__item">
 					<span className="fleet-summary-panel__value">{navigating}</span>
-					<span className="fleet-summary-panel__label">navigating</span>
+					<span className="label-base">navigating</span>
 				</div>
-				<div className="fleet-summary-panel__item">
+				<div className="panel-item-base fleet-summary-panel__item">
 					<span className="fleet-summary-panel__value">{error}</span>
-					<span className="fleet-summary-panel__label">error</span>
+					<span className="label-base">error</span>
 				</div>
 			</div>
 		</div>

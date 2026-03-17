@@ -49,7 +49,6 @@ function MapCameraOverlayInner({ vehicle, videoSrc }: MapCameraOverlayProps) {
 				'map-camera-overlay',
 				expanded ? 'map-camera-overlay--expanded' : '',
 				expanded && expandedSize === 'large' ? 'map-camera-overlay--expanded-large' : '',
-				!expanded ? 'map-camera-overlay--docked' : '',
 			]
 				.filter(Boolean)
 				.join(' ')}

@@ -54,31 +54,31 @@ export default function VehicleCard({
 
 			<div className="vehicle-card__meta">
 				<div className="vehicle-card__meta-row">
-					<span className="meta-label">Autonomy</span>
+					<span className="label-base vehicle-card__meta-label">Autonomy</span>
 					<span className="meta-value">
 						{autonomyLabelByState[vehicle.autonomyState]}
 					</span>
 				</div>
 
 				<div className="vehicle-card__meta-row">
-					<span className="meta-label">Mission</span>
+					<span className="label-base vehicle-card__meta-label">Mission</span>
 					<span className="meta-value">{missionStatus}</span>
 				</div>
 
 				<div className="vehicle-card__meta-row">
-					<span className="meta-label">Connection</span>
+					<span className="label-base vehicle-card__meta-label">Connection</span>
 					<span className="meta-value">
 						{connectionLabelByStatus[vehicle.connection]}
 					</span>
 				</div>
 
 				<div className="vehicle-card__meta-row">
-					<span className="meta-label">Battery</span>
+					<span className="label-base vehicle-card__meta-label">Battery</span>
 					<span className="meta-value">{vehicle.batteryPct}%</span>
 				</div>
 
 				<div className="vehicle-card__meta-row">
-					<span className="meta-label">Last update</span>
+					<span className="label-base vehicle-card__meta-label">Last update</span>
 					<span className="meta-value">{formatEventTime(vehicle.lastUpdateMs)}</span>
 				</div>
 			</div>

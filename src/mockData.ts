@@ -105,6 +105,7 @@ export const initialAlerts: Alert[] = [
 ];
 
 export const initialEvents: EventLogItem[] = [
+  // AV-01 (4 events)
   {
     id: 'ev-001',
     vehicleId: 'AV-01',
@@ -115,10 +116,26 @@ export const initialEvents: EventLogItem[] = [
   {
     id: 'ev-002',
     vehicleId: 'AV-01',
-    atMs: now - 45000,
+    atMs: now - 52000,
     kind: 'waypoint',
     message: 'WP 1 reached',
   },
+  {
+    id: 'ev-006',
+    vehicleId: 'AV-01',
+    atMs: now - 48000,
+    kind: 'telemetry',
+    message: 'Speed: 18 mph',
+  },
+  {
+    id: 'ev-007',
+    vehicleId: 'AV-01',
+    atMs: now - 42000,
+    kind: 'telemetry',
+    message: 'Autonomy: nominal',
+  },
+
+  // AV-02 (4 events)
   {
     id: 'ev-003',
     vehicleId: 'AV-02',
@@ -126,6 +143,29 @@ export const initialEvents: EventLogItem[] = [
     kind: 'telemetry',
     message: 'Connection: degraded',
   },
+  {
+    id: 'ev-008',
+    vehicleId: 'AV-02',
+    atMs: now - 26000,
+    kind: 'telemetry',
+    message: 'Latency spike detected',
+  },
+  {
+    id: 'ev-009',
+    vehicleId: 'AV-02',
+    atMs: now - 22000,
+    kind: 'waypoint',
+    message: 'WP 2 reached',
+  },
+  {
+    id: 'ev-010',
+    vehicleId: 'AV-02',
+    atMs: now - 18000,
+    kind: 'telemetry',
+    message: 'Speed: 12 mph',
+  },
+
+  // AV-03 (4 events)
   {
     id: 'ev-004',
     vehicleId: 'AV-03',
@@ -139,5 +179,19 @@ export const initialEvents: EventLogItem[] = [
     atMs: now - 15000,
     kind: 'telemetry',
     message: 'Autonomy: maintenance',
+  },
+  {
+    id: 'ev-011',
+    vehicleId: 'AV-03',
+    atMs: now - 12000,
+    kind: 'telemetry',
+    message: 'Manual override engaged',
+  },
+  {
+    id: 'ev-012',
+    vehicleId: 'AV-03',
+    atMs: now - 8000,
+    kind: 'telemetry',
+    message: 'Diagnostics running',
   },
 ];

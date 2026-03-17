@@ -25,7 +25,7 @@ export default function Filter({
 				Filter
 				</label>
 				<select
-				className="toolbar__select"
+				className="btn-base toolbar__select"
 				name="filter"
 				id="filterSelect"
 				value={filter}
@@ -42,7 +42,7 @@ export default function Filter({
 				Sort
 				</label>
 				<select
-				className="toolbar__select"
+				className="btn-base toolbar__select"
 				name="sort"
 				id="sortSelect"
 				value={sort}
@@ -57,7 +57,7 @@ export default function Filter({
 			<div className="toolbar__actions">
 				<button
 				type="button"
-				className="toolbar__button"
+				className="btn-base toolbar__button"
 				onClick={onPausedToggle}
 				>
 				{paused ? 'Resume' : 'Pause'}

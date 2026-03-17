@@ -51,7 +51,7 @@ function MapAlertOverlayInner({
 						<div className="alert-row__message">{alert.message}</div>
 						<button
 							type="button"
-							className="alert-row__button"
+							className="btn-base alert-row__button"
 							onClick={(e) => {
 								e.stopPropagation();
 								onAcknowledge(alert.id);

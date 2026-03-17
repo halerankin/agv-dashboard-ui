@@ -48,7 +48,7 @@ export default function AlertBar({
 
 						<button
 							type="button"
-							className="alert-row__button"
+							className="btn-base alert-row__button"
 							onClick={(e) => {
 								e.stopPropagation();
 								onAcknowledge(alert.id);
