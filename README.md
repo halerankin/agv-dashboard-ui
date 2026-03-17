@@ -1,73 +1,62 @@
-# React + TypeScript + Vite
+# AGV C2 Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript prototype for an autonomous ground vehicle (AGV) command-and-control dashboard.
 
-Currently, two official plugins are available:
+This dashboard is intended to explore operator-facing UI patterns for:
+- fleet awareness
+- vehicle selection and status review
+- map-based monitoring
+- alerts, events, and operator attention management
+- docked and expanded vehicle camera feeds
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Run locally
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then open the local Vite URL shown in the terminal.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Tech
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+* React
+* TypeScript
+* Vite
+* CSS
+
+## Data simulation
+
+This project uses local, in-memory data to simulate a live AGV fleet environment. There are no external services or APIs.
+
+### Vehicles and events
+- Initial fleet state, alerts, and events are defined in `src/mockData.ts`
+- These provide a consistent baseline for UI rendering and layout validation
+
+### Telemetry simulation (MQTT-style)
+- `useMockFleetTelemetry` simulates incoming telemetry similar to an MQTT-based system
+- Updates are generated asynchronously and in bursts, rather than on a fixed interval
+- Telemetry messages are batched and applied together to mimic ingestion pipelines
+- Vehicles receive partial updates (position, heading, status), not full state replacements
+- This creates realistic UI conditions such as:
+  - rapid successive updates
+  - uneven update frequency across vehicles
+  - transient states (degraded, offline, recovery)
+
+The goal is not to replicate MQTT exactly, but to reproduce the *behavioral patterns* an operator UI must handle when consuming live telemetry streams.
+
+### Alerts and events
+- Alerts are derived from vehicle state and telemetry conditions
+- Events are a mix of predefined and simulated updates
+- Panels filter and present this data to reflect operator workflows
+
+### Vehicle video
+- Each vehicle is assigned a local video asset (`src/assets/vehicle{1-3}.mp4`)
+- Videos are loaded lazily and mapped per vehicle
+- Docked state: video is paused  
+- Expanded state: video plays automatically  
+- This simulates a live POV feed without requiring streaming infrastructure
+
+---
+
+This setup allows the dashboard to behave like a live system while remaining fully local and deterministic.
