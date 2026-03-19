@@ -13,6 +13,7 @@ import type {
 import { initialVehicles, initialAlerts, initialEvents } from '../mockData';
 import Filter from './Filter';
 import AttentionSummaryBar from './AttentionSummaryBar';
+import MapAlertOverlay from './MapAlertOverlay';
 import ContentViewToggle from './ContentViewToggle';
 import DashboardMainSection from './DashboardMainSection';
 import { useVehicleAlerts } from '../hooks/useVehicleAlerts';
@@ -136,7 +137,18 @@ export default function FleetWorkspace({
           onPausedToggle={onPausedToggle}
         />
 
-        <AttentionSummaryBar alerts={unackedAlerts} vehicles={vehicles} />
+        <div className="app-toolbar-row__attention-anchor">
+          <AttentionSummaryBar alerts={unackedAlerts} vehicles={vehicles} />
+          {unackedAlerts.length > 0 && (
+            <div className="app-toolbar-row__active-alerts-drop">
+              <MapAlertOverlay
+                alerts={unackedAlerts}
+                onAcknowledge={handleAcknowledgeAlert}
+                onSelectVehicle={(id) => onSelectVehicle(id)}
+              />
+            </div>
+          )}
+        </div>
 
         <div className="app-toolbar-row__right">
           <ContentViewToggle 
@@ -157,7 +169,6 @@ export default function FleetWorkspace({
             unackedCountByVehicleId={unackedCountByVehicleId}
             contentView={contentView}
             onSelectVehicle={onSelectVehicle}
-            onAcknowledgeAlert={handleAcknowledgeAlert}
             onVehicleAction={handleVehicleAction}
         />
       </div>

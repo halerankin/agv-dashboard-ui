@@ -19,7 +19,6 @@ type DashboardMainSectionProps = {
     contentView: ContentView;
     onSelectVehicle: (vehicleId: VehicleId | null) => void;
     onVehicleAction: (vehicleId: VehicleId, action: VehicleAction) => void;
-    onAcknowledgeAlert: (alertId: string) => void;
 };
 
 export default function DashboardMainSection({
@@ -33,7 +32,6 @@ export default function DashboardMainSection({
     contentView,
     onSelectVehicle,
     onVehicleAction,
-    onAcknowledgeAlert,
 }: DashboardMainSectionProps) {
     const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? null;
 
@@ -60,7 +58,6 @@ export default function DashboardMainSection({
                     routes={routes}
                     selectedVehicleId={selectedVehicleId}
                     onSelectVehicle={onSelectVehicle}
-                    onAcknowledgeAlert={onAcknowledgeAlert}
                 />
             </div>
 

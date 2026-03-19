@@ -8,7 +8,7 @@ type MapAlertOverlayProps = {
 	onSelectVehicle: (vehicleId: VehicleId) => void;
 };
 
-const VISIBLE_ALERT_COUNT = 3;
+const VISIBLE_ALERT_COUNT = 5;
 
 /** Floating alert overlay above the map. Fixed height, up to 3 alerts, no scroll. */
 function MapAlertOverlayInner({

@@ -1,51 +1,3 @@
-:root {
-  --bg-app: #0b1220;
-  --bg-panel: #121a2a;
-  --bg-panel-2: #182235;
-  --bg-hover: #1d2940;
-  --bg-selected: #1a2f4d;
-
-  --border-subtle: #25324a;
-  --border-strong: #3e5a84;
-
-  --text-primary: #e8eefc;
-  --text-secondary: #a7b6d3;
-  --text-muted: #71819e;
-
-  --accent: #69b7ff;
-  --success: #4dc88c;
-  --warn: #ffb84d;
-  --danger: #ff667a;
-
-  --shadow-panel: 0 10px 24px rgba(0, 0, 0, 0.28);
-  --radius-panel: 6px;
-  --radius-sm: 8px;
-  --spacing-sm: 8px;
-  --spacing-md: 12px;
-
-  --focus-ring: 2px solid var(--accent);
-  --focus-offset: 2px;
-  --transition-control: 120ms ease;
-
-  /* Overlay and tint tokens */
-  --overlay-subtle: rgba(255, 255, 255, 0.02);
-  --overlay-light: rgba(255, 255, 255, 0.04);
-  --overlay-dark: rgba(10, 14, 20, 0.72);
-  --overlay-dark-hover: rgba(10, 14, 20, 0.88);
-  --border-muted: rgba(37, 50, 74, 0.6);
-  --border-muted-strong: rgba(37, 50, 74, 0.8);
-  --accent-tint: rgba(105, 183, 255, 0.12);
-  --accent-tint-light: rgba(105, 183, 255, 0.06);
-  --accent-glow: rgba(105, 183, 255, 0.4);
-  --accent-tint-border: rgba(105, 183, 255, 0.25);
-  --text-on-accent: #08111f;
-
-  /* Semantic tint tokens for event row variants */
-  --success-tint-light: rgba(77, 200, 140, 0.06);
-  --danger-tint-light: rgba(255, 102, 122, 0.06);
-  --warn-tint-light: rgba(255, 184, 77, 0.06);
-}
-
 html,
 body,
 #root {
@@ -100,16 +52,37 @@ body,
   background: var(--bg-app);
   color: var(--text-primary);
   padding: var(--spacing-md);
+  box-sizing: border-box;
 }
 
 /* Toolbar + attention summary merged on one row */
 .app-toolbar-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
   flex-shrink: 0;
   margin-bottom: var(--spacing-md);
+  z-index: var(--z-toolbar);
+}
+
+.app-toolbar-row__attention-anchor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.app-toolbar-row__active-alerts-drop {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0px;
+  z-index: 1;
+  width: min(300px, 90vw);
+  min-width: 260px;
 }
 
 .app-toolbar-row__right {
@@ -242,7 +215,7 @@ body,
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 44px;
+  height: 55px;
   width: 480px;
   padding: 0 14px;
   border-radius: 10px;
@@ -251,7 +224,6 @@ body,
   box-shadow:
     inset 0 0 0 1px var(--overlay-subtle),
     0 0 0 1px rgba(255, 255, 255, 0.01);
-  flex: 0 0 480px;
 }
 
 @media (max-width: 1400px) {
@@ -540,6 +512,7 @@ body,
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  padding: 0;
 }
 
 .map-panel__toolbar {
@@ -576,9 +549,52 @@ body,
 .map-control-panel {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  flex-wrap: wrap;
   min-width: 0;
+}
+
+/* Vertical rail: map-edge tool surface — legible, anchored, intentional */
+.map-control-panel--vertical {
+  --map-control-rail-width: 82px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  width: var(--map-control-rail-width);
+}
+
+.map-control-panel--vertical .map-control-panel__group {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.map-control-panel--vertical .map-control-panel__group--focus {
+  margin-bottom: 10px;
+}
+
+.map-control-panel--vertical .map-control-panel__group--weight {
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.map-control-panel--vertical .map-control-panel__group--toggles {
+  gap: 4px;
+}
+
+.map-control-panel--vertical .map-control-panel__button {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  padding: 0 8px;
+  height: 30px;
+  font-size: 11px;
+}
+
+.map-control-panel--vertical .map-control-panel__weight-btn {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  padding: 0;
+  height: 28px;
 }
 
 .map-control-panel__group {
@@ -684,29 +700,137 @@ body,
   background: var(--bg-panel-2);
 }
 
-.leaflet-map-overlays {
+/* Map overlay root — single container for map-owned UI */
+.map-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1000;
+  z-index: var(--z-toolbar);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
 }
 
-.leaflet-map-overlays > * {
+.map-overlay > * {
   pointer-events: auto;
 }
 
-/* Floating alert overlay above map - lightweight, fixed 3 rows, no scroll */
+.map-overlay__top-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  min-width: 0;
+  margin-left: 12px;
+}
+
+.map-overlay__top-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.map-overlay__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 4px 8px 6px;
+  background: var(--overlay-medium);
+  border: 1px solid var(--border-muted);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  box-shadow: var(--shadow-panel);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.map-overlay--vertical .map-overlay__top-left {
+  margin-left: 0;
+}
+
+.map-overlay--vertical .map-overlay__controls {
+  width: auto;
+  padding: 10px 8px;
+  border-radius: 0 0 var(--radius-sm) 0;
+  border-left: none;
+}
+
+.map-overlay--vertical .map-overlay__controls .map-control-panel {
+  flex: none;
+}
+
+.map-overlay__controls .map-control-panel {
+  gap: var(--spacing-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Dev-only layout toggle — outside main cluster, bottom of top-left column */
+.map-overlay__layout-toggle {
+  align-self: flex-start;
+  margin-top: 4px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.5;
+  background: var(--overlay-light);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.map-overlay__layout-toggle:hover {
+  opacity: 0.9;
+  border-color: var(--border-strong);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.map-overlay__layout-toggle:focus {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+
+.map-overlay__controls .map-control-panel__button {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.map-overlay__controls--vertical .map-control-panel__button {
+  height: 30px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.map-overlay__vehicle-count {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--overlay-medium);
+  border: 1px solid var(--border-muted);
+  border-radius: 0 0 0 var(--radius-sm);
+  box-shadow: var(--shadow-panel);
+}
+
+/* Alert drop panel — toolbar-attached, centered beneath AttentionSummaryBar */
 .map-alert-overlay {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  z-index: 10;
-  max-width: 340px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-panel);
+  top: auto;
+  left: auto;
+  right: auto;
+  z-index: auto;
+  width: 100%;
+  max-width: 100%;
+  background: var(--overlay-dark);
+  border: 1px solid var(--accent-tint-border);
+  border-top-width: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  box-shadow: 0 0 0 1px var(--accent-tint-border), var(--shadow-panel);
   overflow: hidden;
 }
 
@@ -743,7 +867,7 @@ body,
 
 .map-alert-overlay__list {
   overflow: hidden;
-  height: 120px;
+  /* height: 200px; */
 }
 
 .map-alert-overlay .alert-row {
@@ -773,218 +897,7 @@ body,
   border-top: 1px solid var(--border-muted);
 }
 
-/* Docked camera overlay - compact in corner, expands outward from lower right */
-.map-camera-overlay {
-  --camera-overlay-expanded-width: min(480px, 85vw);
-  --camera-overlay-expanded-large-width: min(640px, 92vw);
-  --camera-overlay-header-min-height: 44px;
-  --camera-overlay-control-size: 44px;
-  --camera-overlay-edge-offset: 12px;
 
-  background: var(--bg-panel);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-panel);
-  box-sizing: border-box;
-  overflow: hidden;
-  transform-origin: bottom right;
-  transition: box-shadow var(--transition-control);
-}
-
-/* Expanded state remains anchored to lower-right.
-   Only width/height grow, so top/left expand outward. */
-.map-camera-overlay--expanded {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  width: var(--camera-overlay-expanded-width);
-  max-height: min(360px, 70vh);
-  border-radius: 12px 0 0 0;
-  border-right: none;
-  border-bottom: none;
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(255,255,255,0.08),
-    inset 0 0 0 1px rgba(255,255,255,0.03);
-}
-
-.map-camera-overlay--expanded-large {
-  width: var(--camera-overlay-expanded-large-width);
-  max-height: min(480px, 80vh);
-}
-
-.map-camera-overlay__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-sm);
-  min-height: var(--camera-overlay-header-min-height);
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--overlay-subtle);
-  flex-shrink: 0;
-}
-
-.map-camera-overlay__title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
-}
-
-.map-camera-overlay__headerButton {
-  all: unset;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--overlay-light);
-  border: 1px solid rgba(255,255,255,0.08);
-  transition: background var(--transition-control), border-color var(--transition-control);
-}
-
-.map-camera-overlay__headerButton:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255,255,255,0.16);
-}
-
-.map-camera-overlay__headerButton:active {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-/* Optional wrapper for touch-friendly controls in the header */
-.map-camera-overlay__controls {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  flex-shrink: 0;
-}
-
-/* Shared touch target sizing for header buttons */
-.map-camera-overlay__sizeButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--camera-overlay-control-size);
-  min-width: var(--camera-overlay-control-size);
-  height: var(--camera-overlay-control-size);
-  padding: 0;
-  border: none;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: background var(--transition-control), color var(--transition-control), border-color var(--transition-control);
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-.map-camera-overlay__sizeButton:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-.map-camera-overlay__sizeButton:focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-offset);
-}
-
-/* Optional size buttons for expanded video modes */
-.map-camera-overlay__sizeButton {
-  padding-inline: 10px;
-  width: auto;
-  min-width: 44px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.map-camera-overlay__sizeButton[aria-pressed='true'] {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-/* Feed stays tappable, with a larger touch affordance on tablet */
-.map-camera-overlay__feed {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #000;
-  cursor: pointer;
-  touch-action: manipulation;
-  overflow: hidden;
-}
-
-/* subtle vignette + feed texture */
-.map-camera-overlay__feed::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at center, transparent 58%, rgba(0, 0, 0, 0.34) 100%),
-    linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(255,255,255,0.01) 18%, rgba(0,0,0,0.06) 100%);
-  z-index: 1;
-}
-
-/* faint scanline/compression feel */
-.map-camera-overlay__feed::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,0.028) 0,
-      rgba(255,255,255,0.028) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-  opacity: 0.22;
-  z-index: 2;
-}
-
-.map-camera-overlay--expanded .map-camera-overlay__feed {
-  max-height: calc(min(360px, 70vh) - var(--camera-overlay-header-min-height));
-}
-
-.map-camera-overlay--expanded-large .map-camera-overlay__feed {
-  max-height: calc(min(480px, 80vh) - var(--camera-overlay-header-min-height));
-}
-
-.map-camera-overlay__video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter:
-    grayscale(1)
-    contrast(1.1)
-    brightness(0.95)
-    blur(0.2px);
-}
-
-/* Tablet-friendly bump */
-@media (pointer: coarse) {
-  .map-camera-overlay {
-    --camera-overlay-control-size: 48px;
-    --camera-overlay-header-min-height: 52px;
-    --camera-overlay-edge-offset: 12px;
-    --camera-overlay-expanded-width: min(560px, 92vw);
-    --camera-overlay-expanded-large-width: min(720px, 96vw);
-  }
-
-  .map-camera-overlay__header {
-    padding: 6px 8px 6px 12px;
-  }
-
-  .map-camera-overlay__title {
-    font-size: 12px;
-  }
-}
 
 /* Waypoint marker */
 .waypoint-marker {
@@ -1039,117 +952,6 @@ body,
   box-shadow: 0 0 0 3px rgba(105, 183, 255, 0.5);
 }
 
-/* Vehicle marker — zoom-aware: far=minimal, mid=reduced, full=complete.
-   Dimensions from VEHICLE_MARKER_METRICS / ZOOM_DIMENSIONS in VehicleMarker.tsx. */
-.vehicle-marker {
-  position: absolute;
-  width: var(--vehicle-marker-size, 112px);
-  height: var(--vehicle-marker-size, 112px);
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Operational ring — hidden at far zoom, lightweight shadow at mid/full */
-.vehicle-marker__ring-outer {
-  position: absolute;
-  width: var(--vehicle-marker-outer-ring-size, 96px);
-  height: var(--vehicle-marker-outer-ring-size, 96px);
-  border-radius: 50%;
-  border: 6px solid var(--border-subtle);
-  background: transparent;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
-  pointer-events: none;
-}
-
-/* Directional arrow — outer triangle is the outline */
-.vehicle-marker__heading-wedge {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-
-  /* center using the OUTER size */
-  margin-left: calc((var(--vehicle-marker-arrow-width, 7px) + 1px) * -1);
-  margin-top: calc((var(--vehicle-marker-arrow-height, 16px) + 2px) * -0.5);
-
-  border-left: calc(var(--vehicle-marker-arrow-width, 7px) + 1px) solid transparent;
-  border-right: calc(var(--vehicle-marker-arrow-width, 7px) + 1px) solid transparent;
-  border-bottom: calc(var(--vehicle-marker-arrow-height, 16px) + 2px) solid rgba(0, 0, 0, 0.85);
-
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Inner triangle — painted above the outline */
-.vehicle-marker__heading-wedge::after {
-  content: "";
-  position: absolute;
-  top: 1px;
-  left: calc(var(--vehicle-marker-arrow-width, 7px) * -1);
-
-  width: 0;
-  height: 0;
-
-  border-left: var(--vehicle-marker-arrow-width, 7px) solid transparent;
-  border-right: var(--vehicle-marker-arrow-width, 7px) solid transparent;
-  border-bottom: var(--vehicle-marker-arrow-height, 16px) solid var(--text-primary);
-}
-
-/* Far zoom: lighter outline */
-.vehicle-marker--zoom-1 .vehicle-marker__heading-wedge {
-  border-bottom-color: rgba(0, 0, 0, 0.75);
-}
-
-/* Mid/full zoom: stronger outline */
-.vehicle-marker--zoom-2 .vehicle-marker__heading-wedge,
-.vehicle-marker--zoom-3 .vehicle-marker__heading-wedge {
-  border-bottom-color: rgba(0, 0, 0, 0.9);
-}
-
-/* Outer ring: status-based */
-.vehicle-marker--status-normal .vehicle-marker__ring-outer {
-  border-color: rgba(37, 50, 74, 0.9);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
-}
-
-/* Degraded/critical: retain attention-grabbing glow and pulse */
-.vehicle-marker--status-degraded .vehicle-marker__ring-outer {
-  border-color: var(--warn);
-  box-shadow: 0 0 0 2px rgba(255, 184, 77, 0.5);
-}
-
-.vehicle-marker--status-critical .vehicle-marker__ring-outer {
-  border-color: var(--danger);
-  box-shadow: 0 0 0 2px rgba(255, 102, 122, 0.5);
-}
-
-.vehicle-marker--status-offline .vehicle-marker__ring-outer {
-  border-color: var(--text-muted);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
-}
-
-
-/* Selected state — minimal glow */
-.vehicle-marker--selected .vehicle-marker__ring-outer {
-  border-width: 3px;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent-glow);
-}
-
-.vehicle-marker:focus {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-offset);
-}
-
-.vehicle-marker:hover .vehicle-marker__ring-outer {
-  border-color: var(--accent);
-}
 
 /* Vehicle list + cards */
 .vehicle-list-panel {

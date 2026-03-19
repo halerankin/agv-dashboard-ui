@@ -3,10 +3,11 @@ import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
 import type { LatLngTuple } from 'leaflet';
 import type { Alert, Route, Vehicle, VehicleId } from '../types';
 import { SeverityRank } from '../types';
-import type { RouteLineWeight } from './MapControlPanel';
+import type { MapControlLayoutMode, RouteLineWeight } from './MapControlPanel';
+import MapControlPanel from './MapControlPanel';
 import VehicleMarker, {
-	VEHICLE_MARKER_METRICS,
-	type VehicleMarkerZoom,
+	VEHICLE_MARKER_DETAIL_SIZE,
+	type VehicleMarkerDetailMode,
 } from './VehicleMarker';
 import WaypointMarker from './WaypointMarker';
 
@@ -21,9 +22,7 @@ const SATELLITE_TILE_URL =
 const SATELLITE_ATTRIBUTION =
 	'© Esri, Maxar, Earthstar Geographics, and the GIS User Community';
 
-const ZOOM_MIN = 1;
-const ZOOM_MAX = 3;
-const LEAFLET_ZOOM_BASE = 12;
+const LEAFLET_ZOOM_BASE = 15;
 const FOCUS_MARGIN = 0.008;
 
 type LeafletMapWorkspaceProps = {
@@ -34,11 +33,14 @@ type LeafletMapWorkspaceProps = {
 	showRoutes: boolean;
 	showWaypoints: boolean;
 	focusOnSelected: boolean;
-	zoom: number;
+	onFocusToggle: () => void;
 	routeLineWeight: RouteLineWeight;
+	onRouteLineWeightChange: (weight: RouteLineWeight) => void;
+	onRoutesToggle: () => void;
+	onWaypointsToggle: () => void;
+	detailMode: VehicleMarkerDetailMode;
+	onDetailModeChange: (mode: VehicleMarkerDetailMode) => void;
 	onSelectVehicle: (vehicleId: VehicleId | null) => void;
-	onZoomChange: (zoom: number) => void;
-	children: React.ReactNode;
 };
 
 function getTopUnackedSeverity(
@@ -55,6 +57,13 @@ function getTopUnackedSeverity(
 	}
 	return top;
 }
+
+function getDetailMode(z: number): VehicleMarkerDetailMode {
+	if (z < 13) return 'minimal';
+	if (z < 15) return 'reduced';
+	if (z < 17) return 'full';
+	return 'close';
+  }
 
 /** Small threshold for lat/lng comparison — avoids reframing on floating-point noise. */
 const POSITION_EPSILON = 1e-7;
@@ -116,33 +125,24 @@ function MapBoundsSync({
 	return null;
 }
 
-function MapZoomSync({
-	zoom,
-	onZoomChange,
+function MapDetailModeSync({
+	onDetailModeChange,
 }: {
-	zoom: number;
-	onZoomChange: (zoom: number) => void;
+	onDetailModeChange: (mode: VehicleMarkerDetailMode) => void;
 }) {
 	const map = useMap();
 
 	React.useEffect(() => {
-		const leafletZoom = LEAFLET_ZOOM_BASE + (zoom - 1);
-		map.setZoom(leafletZoom, { animate: false });
-	}, [map, zoom]);
-
-	React.useEffect(() => {
 		const handler = () => {
 			const z = map.getZoom();
-			const ourZoom = Math.round(
-				Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z - LEAFLET_ZOOM_BASE + 1))
-			);
-			onZoomChange(ourZoom);
+			onDetailModeChange(getDetailMode(z));
 		};
+
 		map.on('zoomend', handler);
 		return () => {
 			map.off('zoomend', handler);
 		};
-	}, [map, onZoomChange]);
+	}, [map, onDetailModeChange]);
 
 	return null;
 }
@@ -153,7 +153,7 @@ const MapMarkersOverlay = React.memo(function MapMarkersOverlay({
 	visibleRoutes,
 	selectedVehicleId,
 	showWaypoints,
-	zoom,
+	detailMode,
 	onSelectVehicle,
 }: {
 	vehicles: Vehicle[];
@@ -161,7 +161,7 @@ const MapMarkersOverlay = React.memo(function MapMarkersOverlay({
 	visibleRoutes: Route[];
 	selectedVehicleId: VehicleId | null;
 	showWaypoints: boolean;
-	zoom: VehicleMarkerZoom;
+	detailMode: VehicleMarkerDetailMode;
 	onSelectVehicle: (vehicleId: VehicleId | null) => void;
 }) {
 	const map = useMap();
@@ -256,7 +256,7 @@ const MapMarkersOverlay = React.memo(function MapMarkersOverlay({
 			{vehicles.map((vehicle) => {
 				const pos = positions.get(vehicle.id);
 				if (!pos) return null;
-				const size = VEHICLE_MARKER_METRICS.sizeByZoom[zoom];
+				const size = VEHICLE_MARKER_DETAIL_SIZE[detailMode];
 				const half = size / 2;
 				return (
 					<div
@@ -274,8 +274,9 @@ const MapMarkersOverlay = React.memo(function MapMarkersOverlay({
 							vehicle={vehicle}
 							topAlertSeverity={getTopUnackedSeverity(vehicle.id, alerts)}
 							isSelected={vehicle.id === selectedVehicleId}
-							zoom={zoom}
+							detailMode={detailMode}
 							onSelectVehicle={onSelectVehicle}
+							selectionStyle="large-triangle"
 						/>
 					</div>
 				);
@@ -339,12 +340,17 @@ export default React.memo(function LeafletMapWorkspace({
 	showRoutes,
 	showWaypoints,
 	focusOnSelected,
-	zoom,
+	onFocusToggle,
 	routeLineWeight,
+	onRouteLineWeightChange,
+	onRoutesToggle,
+	onWaypointsToggle,
+	detailMode,
+	onDetailModeChange,
 	onSelectVehicle,
-	onZoomChange,
-	children,
 }: LeafletMapWorkspaceProps) {
+	const [controlLayoutMode, setControlLayoutMode] =
+		React.useState<MapControlLayoutMode>('horizontal');
 	const weights = ROUTE_WEIGHT[routeLineWeight];
 	const visibleVehicleIds = React.useMemo(
 		() => new Set(vehicles.map((v) => v.id)),
@@ -397,7 +403,7 @@ export default React.memo(function LeafletMapWorkspace({
 		<div className="leaflet-map-workspace">
 			<MapContainer
 				center={center}
-				zoom={LEAFLET_ZOOM_BASE + zoom - 1}
+				zoom={LEAFLET_ZOOM_BASE}
 				className="leaflet-map-container"
 				zoomControl={false}
 				attributionControl={true}
@@ -421,19 +427,55 @@ export default React.memo(function LeafletMapWorkspace({
 					focusOnSelected={focusOnSelected}
 					selectedVehicle={selectedVehicle}
 				/>
-				<MapZoomSync zoom={zoom} onZoomChange={onZoomChange} />
+				<MapDetailModeSync onDetailModeChange={onDetailModeChange}/>
 				<MapMarkersOverlay
 					vehicles={vehicles}
 					alerts={alerts}
 					visibleRoutes={visibleRoutes}
 					selectedVehicleId={selectedVehicleId}
 					showWaypoints={showWaypoints}
-					zoom={Math.max(1, Math.min(3, zoom)) as VehicleMarkerZoom}
+					detailMode={detailMode}
 					onSelectVehicle={onSelectVehicle}
 				/>
 			</MapContainer>
-			<div className="leaflet-map-overlays">
-				{children}
+			<div 
+				className={`map-overlay ${controlLayoutMode === 'vertical' ? 'map-overlay--vertical' : ''}`}
+			>
+				<div className="map-overlay__top-left">
+					<div className="map-overlay__controls">
+						<MapControlPanel
+							focusOnSelected={focusOnSelected}
+							onFocusToggle={onFocusToggle}
+							showRoutes={showRoutes}
+							onRoutesToggle={onRoutesToggle}
+							showWaypoints={showWaypoints}
+							onWaypointsToggle={onWaypointsToggle}
+							routeLineWeight={routeLineWeight}
+							onRouteLineWeightChange={onRouteLineWeightChange}
+							layoutMode={controlLayoutMode}
+						/>
+					</div>
+					{import.meta.env.DEV && (
+						<button
+							type="button"
+							className="btn-base map-overlay__layout-toggle"
+							onClick={() =>
+								setControlLayoutMode((m) =>
+									m === 'horizontal' ? 'vertical' : 'horizontal'
+								)
+							}
+							title="Toggle layout (horizontal / vertical) — dev only"
+							aria-label={`Layout: ${controlLayoutMode}; click to switch`}
+						>
+							{controlLayoutMode === 'horizontal' ? 'V' : 'H'}
+						</button>
+					)}
+				</div>
+				<div className="map-overlay__top-right">
+					<span className="map-overlay__vehicle-count">
+						{vehicles.length} vehicles
+					</span>
+				</div>
 			</div>
 		</div>
 	);

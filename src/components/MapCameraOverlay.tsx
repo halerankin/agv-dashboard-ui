@@ -1,5 +1,7 @@
 import * as React from 'react';
 import type { Vehicle } from '../types';
+import { usePlaceholderFrame } from '../hooks/usePlaceholderFrame';
+import './MapCameraOverlay.css';
 
 type MapCameraOverlayProps = {
 	vehicle: Vehicle;
@@ -11,10 +13,26 @@ type MapCameraOverlayProps = {
  * Floating camera overlay above the map. Starts paused; click video toggles play/pause.
  * Click header or video to expand. Does not alter map layout or dimensions.
  */
+type FeedState = 'loading' | 'ready' | 'error';
+
 function MapCameraOverlayInner({ vehicle, videoSrc }: MapCameraOverlayProps) {
 	const [expanded, setExpanded] = React.useState(false);
 	const [expandedSize, setExpandedSize] = React.useState<'default' | 'large'>('default');
+	const [feedState, setFeedState] = React.useState<FeedState>('loading');
 	const videoRef = React.useRef<HTMLVideoElement>(null);
+	const placeholderFrameUrl = usePlaceholderFrame(videoSrc);
+
+	React.useEffect(() => {
+		setFeedState('loading');
+	}, [videoSrc]);
+
+	const handleCanPlay = React.useCallback(() => {
+		setFeedState('ready');
+	}, []);
+
+	const handleError = React.useCallback(() => {
+		setFeedState('error');
+	}, []);
 
 	const handleExpand = () => {
 		if (!expanded) {
@@ -103,24 +121,40 @@ function MapCameraOverlayInner({ vehicle, videoSrc }: MapCameraOverlayProps) {
 				tabIndex={0}
 				onClick={handleExpand}
 				onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
-					e.preventDefault();
-					handleExpand();
-				}
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						handleExpand();
+					}
 				}}
 				aria-label={expanded ? 'Camera feed' : 'Expand camera view'}
 			>
-
+				{/* Placeholder frame — visible while loading or on error; uses extracted video frame when available */}
+				<div
+					className={`map-camera-overlay__placeholder ${feedState === 'ready' ? 'map-camera-overlay__placeholder--hidden' : ''}`}
+					style={
+						placeholderFrameUrl
+							? { backgroundImage: `url(${placeholderFrameUrl})` }
+							: undefined
+					}
+					aria-hidden
+				/>
+				{feedState === 'error' && (
+					<div className="map-camera-overlay__no-signal" role="status">
+						No signal
+					</div>
+				)}
 				<video
-				key={vehicle.id}
-				ref={videoRef}
-				className="map-camera-overlay__video"
-				src={videoSrc}
-				muted
-				loop
-				playsInline
-				preload="metadata"
-				aria-label="Play or pause camera video"
+					key={vehicle.id}
+					ref={videoRef}
+					className={`map-camera-overlay__video ${feedState === 'ready' ? 'map-camera-overlay__video--visible' : ''}`}
+					src={videoSrc}
+					muted
+					loop
+					playsInline
+					preload="metadata"
+					onCanPlay={handleCanPlay}
+					onError={handleError}
+					aria-label="Play or pause camera video"
 				/>
 			</div>
 			</div>

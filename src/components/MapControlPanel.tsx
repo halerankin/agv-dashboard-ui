@@ -1,12 +1,7 @@
-import type { VehicleId } from '../types';
-
 export type RouteLineWeight = 'heavy' | 'medium' | 'light';
+export type MapControlLayoutMode = 'horizontal' | 'vertical';
 
 type MapControlPanelProps = {
-	zoom: number;
-	onZoomIn: () => void;
-	onZoomOut: () => void;
-	selectedVehicleId: VehicleId | null;
 	focusOnSelected: boolean;
 	onFocusToggle: () => void;
 	showRoutes: boolean;
@@ -15,13 +10,10 @@ type MapControlPanelProps = {
 	onWaypointsToggle: () => void;
 	routeLineWeight: RouteLineWeight;
 	onRouteLineWeightChange: (weight: RouteLineWeight) => void;
+	layoutMode?: MapControlLayoutMode;
 };
 
 export default function MapControlPanel({
-	zoom,
-	onZoomIn,
-	onZoomOut,
-	selectedVehicleId,
 	focusOnSelected,
 	onFocusToggle,
 	showRoutes,
@@ -30,46 +22,33 @@ export default function MapControlPanel({
 	onWaypointsToggle,
 	routeLineWeight,
 	onRouteLineWeightChange,
+	layoutMode = 'horizontal',
 }: MapControlPanelProps) {
 	const weightOptions: { value: RouteLineWeight; label: string }[] = [
-		{ value: 'heavy', label: 'Heaviest' },
-		{ value: 'medium', label: 'Medium' },
 		{ value: 'light', label: 'Lightest' },
+		{ value: 'medium', label: 'Medium' },
+		{ value: 'heavy', label: 'Heaviest' },
 	];
 
+	const isVertical = layoutMode === 'vertical';
+
 	return (
-		<div className="map-control-panel">
-			<div className="map-control-panel__group">
-				<button
-					type="button"
-					className="btn-base map-control-panel__button"
-					onClick={onZoomOut}
-					aria-label="Zoom out"
-				>
-					−
-				</button>
-				<span className="map-control-panel__zoom">{zoom}</span>
-				<button
-					type="button"
-					className="btn-base map-control-panel__button"
-					onClick={onZoomIn}
-					aria-label="Zoom in"
-				>
-					+
-				</button>
-			</div>
-			<div className="map-control-panel__group">
+		<div
+			className={`map-control-panel ${isVertical ? 'map-control-panel--vertical' : ''}`}
+		>
+			{/* Group 1: Focus — compact header action */}
+			<div className="map-control-panel__group map-control-panel__group--focus">
 				<button
 					type="button"
 					className={`btn-base map-control-panel__button map-control-panel__button--toggle ${focusOnSelected ? 'map-control-panel__button--active' : ''}`}
 					onClick={onFocusToggle}
-					disabled={!selectedVehicleId}
 					aria-label="Focus selected vehicle"
 					title="Focus selected vehicle"
 				>
 					Focus
 				</button>
 			</div>
+			{/* Group 2: Route weight — vertical stack of icon buttons */}
 			<div className="map-control-panel__group map-control-panel__group--weight">
 				{weightOptions.map(({ value, label }) => (
 					<button
@@ -88,7 +67,8 @@ export default function MapControlPanel({
 					</button>
 				))}
 			</div>
-			<div className="map-control-panel__group">
+			{/* Group 3: Routes / Waypoints — stacked toggles matching rail width */}
+			<div className="map-control-panel__group map-control-panel__group--toggles">
 				<button
 					type="button"
 					className={`btn-base map-control-panel__button map-control-panel__button--toggle ${showRoutes ? 'map-control-panel__button--active' : ''}`}

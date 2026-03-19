@@ -1,0 +1,163 @@
+/* Vehicle marker — zoom-aware: far=minimal, mid=reduced, full=complete.
+   Dimensions from VEHICLE_MARKER_METRICS / ZOOM_DIMENSIONS in VehicleMarker.tsx. */
+   .vehicle-marker {
+    position: absolute;
+    width: var(--vehicle-marker-size, 112px);
+    height: var(--vehicle-marker-size, 112px);
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .vehicle-marker__ring-outer {
+    position: absolute;
+    width: var(--vehicle-marker-outer-ring-size, 96px);
+    height: var(--vehicle-marker-outer-ring-size, 96px);
+    border-radius: 50%;
+    border: 4px solid var(--border-subtle);
+    background: transparent;
+    pointer-events: none;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.9),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.9);
+  }
+  
+  /* Heading marker uses inline SVG */
+  .vehicle-marker__heading-wedge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc((var(--vehicle-marker-arrow-width, 7px) * 2) + 2px);
+    height: calc(var(--vehicle-marker-arrow-height, 16px) + 2px);
+    margin-left: calc((((var(--vehicle-marker-arrow-width, 7px) * 2) + 2px)) * -0.5);
+    margin-top: calc((var(--vehicle-marker-arrow-height, 16px) + 2px) * -0.5);
+    display: block;
+    color: var(--text-primary);
+    pointer-events: none;
+    z-index: 2;
+  }
+  
+  .vehicle-marker__heading-wedge svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Status owns color */
+  .vehicle-marker--status-normal .vehicle-marker__ring-outer {
+    border-color: rgba(37, 50, 74, 0.9);
+  }
+  
+  .vehicle-marker--status-degraded .vehicle-marker__ring-outer {
+    border-color: var(--warn);
+  }
+  
+  .vehicle-marker--status-critical .vehicle-marker__ring-outer {
+    border-color: var(--danger);
+  }
+  
+  .vehicle-marker--status-offline .vehicle-marker__ring-outer {
+    border-color: rgba(140, 160, 190, 0.9);
+  }
+  
+  /* Default selected state */
+  .vehicle-marker--selected {
+    z-index: 2;
+  }
+  
+  .vehicle-marker--selected::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--vehicle-marker-outer-ring-size, 96px) - 12px);
+    height: calc(var(--vehicle-marker-outer-ring-size, 96px) - 12px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    pointer-events: none;
+  }
+  
+  /* Selected structural ring inherits status color */
+  .vehicle-marker--status-normal.vehicle-marker--selected {
+    color: rgba(37, 50, 74, 0.9);
+  }
+  
+  .vehicle-marker--status-degraded.vehicle-marker--selected {
+    color: var(--warn);
+  }
+  
+  .vehicle-marker--status-critical.vehicle-marker--selected {
+    color: var(--danger);
+  }
+  
+  .vehicle-marker--status-offline.vehicle-marker--selected {
+    color: rgba(140, 160, 190, 0.9);
+  }
+  
+  /* Experiment: selected marker becomes center dot + large directional outline triangle */
+  .vehicle-marker__selected-triangle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--vehicle-marker-selected-triangle-size, 108px);
+    height: var(--vehicle-marker-selected-triangle-size, 108px);
+    transform-origin: center center;
+    margin-left: calc(var(--vehicle-marker-selected-triangle-size, 108px) * -0.5);
+    margin-top: calc(var(--vehicle-marker-selected-triangle-size, 108px) * -0.5);
+    pointer-events: none;
+    z-index: 1;
+    color: currentColor;
+  }
+  
+  .vehicle-marker__selected-triangle svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .vehicle-marker--selection-large-triangle::after {
+    display: none;
+  }
+  
+  .vehicle-marker--selection-large-triangle .vehicle-marker__heading-wedge {
+    width: var(--vehicle-marker-selected-dot-size, 10px);
+    height: var(--vehicle-marker-selected-dot-size, 10px);
+    margin-left: calc(var(--vehicle-marker-selected-dot-size, 10px) * -0.5);
+    margin-top: calc(var(--vehicle-marker-selected-dot-size, 10px) * -0.5);
+    color: var(--text-primary);
+  }
+  
+  .vehicle-marker--selection-large-triangle .vehicle-marker__heading-wedge svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Make the heading symbol a dot during the experiment */
+  .vehicle-marker--selection-large-triangle .vehicle-marker__heading-wedge svg path {
+    display: none;
+  }
+  
+  .vehicle-marker--selection-large-triangle .vehicle-marker__heading-wedge::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--text-primary);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.95);
+  }
+  
+  /* In the experiment, selection shape is the large triangle, so suppress circle rings */
+  .vehicle-marker--selection-large-triangle .vehicle-marker__ring-outer {
+    display: none;
+  }
+  
+  .vehicle-marker:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-offset);
+  }
