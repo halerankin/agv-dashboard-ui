@@ -2,20 +2,16 @@ import type { GlobalFilter, GlobalSort } from '../types';
 
 type FilterProps = {
 	filter: GlobalFilter,
-	sort: GlobalSort,
-	paused: boolean, 
+	sort: GlobalSort,	
 	onFilterChange: (value: GlobalFilter) => void,
-	onSortChange: (value: GlobalSort) => void,
-	onPausedToggle: () => void
+	onSortChange: (value: GlobalSort) => void,	
 }
 
 export default function Filter({
 	filter,
 	sort,
-	paused,
 	onFilterChange,
 	onSortChange,
-	onPausedToggle
 }: FilterProps)
 {
 	return (
@@ -53,16 +49,6 @@ export default function Filter({
 				<option value="lastUpdate">Last update</option>
 				</select>
 			</div>
-
-			<div className="toolbar__actions">
-				<button
-				type="button"
-				className="btn-base toolbar__button"
-				onClick={onPausedToggle}
-				>
-				{paused ? 'Resume' : 'Pause'}
-				</button>
-			</div>
-			</div>
+		</div>
 	)
 }

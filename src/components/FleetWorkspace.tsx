@@ -130,11 +130,9 @@ export default function FleetWorkspace({
       <div className="app-toolbar-row">
         <Filter
           filter={filter}
-          sort={sort}
-          paused={paused}
+          sort={sort}          
           onFilterChange={onFilterChange}
           onSortChange={onSortChange}
-          onPausedToggle={onPausedToggle}
         />
 
         <div className="app-toolbar-row__attention-anchor">
@@ -170,6 +168,8 @@ export default function FleetWorkspace({
             contentView={contentView}
             onSelectVehicle={onSelectVehicle}
             onVehicleAction={handleVehicleAction}
+            paused={paused}
+            onPausedToggle={onPausedToggle}
         />
       </div>
     </>

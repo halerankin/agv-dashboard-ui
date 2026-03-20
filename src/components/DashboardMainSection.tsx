@@ -19,6 +19,8 @@ type DashboardMainSectionProps = {
     contentView: ContentView;
     onSelectVehicle: (vehicleId: VehicleId | null) => void;
     onVehicleAction: (vehicleId: VehicleId, action: VehicleAction) => void;
+    paused: boolean, 
+    onPausedToggle: () => void
 };
 
 export default function DashboardMainSection({
@@ -32,6 +34,8 @@ export default function DashboardMainSection({
     contentView,
     onSelectVehicle,
     onVehicleAction,
+    paused,
+    onPausedToggle,
 }: DashboardMainSectionProps) {
     const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? null;
 
@@ -49,6 +53,15 @@ export default function DashboardMainSection({
                     unackedCountByVehicleId={unackedCountByVehicleId}
                     onSelectVehicle={onSelectVehicle}
                 />
+
+                <button
+                    type="button"
+                    className="btn-base"
+                    onClick={onPausedToggle}
+                    >
+                    {paused ? 'Resume Simulated Telemetry' : 'Pause Simulated Telemetry'}
+                </button>
+
             </div>
 
             <div className="layout__map">
