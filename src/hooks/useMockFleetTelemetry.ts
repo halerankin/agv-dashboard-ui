@@ -129,41 +129,87 @@ export function useMockFleetTelemetry({
   const vehiclesRef = React.useRef<Vehicle[]>(vehicles);
   const generationTimeoutRef = React.useRef<number | null>(null);
 
+  const generateMessages = React.useEffectEvent(() => {
+    const vehicles = vehiclesRef.current;
+    const eligibleVehicles = getEligibleVehicles(vehicles);
+    if (eligibleVehicles.length === 0) return;
+
+    const now = Date.now();
+    const messageCount = getBurstMessageCount();
+
+    for (let i = 0; i < messageCount; i += 1) {
+      const vehicle = pickVehicleByTelemetryProfile(eligibleVehicles);
+
+      pendingMessagesRef.current.push({
+        vehicleId: vehicle.id,
+        timestampMs: now,
+        batteryDrain: Math.random() < 0.8 ? 1: 0,
+        connection:
+          Math.random() < 0.15
+            ? maybeTransition(
+                vehicle.connection,
+                CONNECTION_TRANSITIONS[vehicle.connection]
+              )
+            : undefined,
+        autonomyState:
+          Math.random() < 0.2
+            ? maybeTransition(
+                vehicle.autonomyState,
+                AUTONOMY_TRANSITIONS[vehicle.autonomyState] ?? []
+              )
+            : undefined,
+      });
+    }
+  });
+
+  const flushPendingMessages = React.useEffectEvent(() => {
+    const pending = pendingMessagesRef.current;
+    if (pending.length === 0) return;
+
+    pendingMessagesRef.current = [];
+
+    let batchResult:
+      | {
+          nextVehicles: Vehicle[];
+          newAlerts: Alert[];
+          newEvents: EventLogItem[];
+        }
+      | undefined;
+
+    setVehicles((prevVehicles) => {
+        const result = applyVehicleTelemetryBatch(prevVehicles, pending);
+        batchResult = result;
+        vehiclesRef.current = result.nextVehicles;
+        return result.nextVehicles;
+      });
+      
+      if (!batchResult) return; 
+      const result = batchResult;
+
+      if (result.newEvents.length > 0) {
+      setEvents((prev) => [...result!.newEvents, ...prev]);
+      }
+
+      setAlerts((prev) => {
+        let next =
+          result.newAlerts.length > 0
+            ? [...result.newAlerts, ...prev]
+            : prev;
+
+        const unacked = next.filter((a) => !a.acked);
+        if (unacked.length > 0 && Math.random() < 0.08) {
+          const toAck = unacked[Math.floor(Math.random() * unacked.length)];
+          next = next.map((a) =>
+            a.id === toAck.id ? { ...a, acked: true } : a
+          );
+        }
+
+        return next;
+      }); 
+  });
+
   React.useEffect(() => {
     if (paused) return;
-
-    const generateMessages = () => {
-      const vehicles = vehiclesRef.current;
-      const eligibleVehicles = getEligibleVehicles(vehicles);
-      if (eligibleVehicles.length === 0) return;
-
-      const now = Date.now();
-      const messageCount = getBurstMessageCount();
-
-      for (let i = 0; i < messageCount; i += 1) {
-        const vehicle = pickVehicleByTelemetryProfile(eligibleVehicles);
-
-        pendingMessagesRef.current.push({
-          vehicleId: vehicle.id,
-          timestampMs: now,
-          batteryDrain: Math.random() < 0.8 ? 1: 0,
-          connection:
-            Math.random() < 0.15
-              ? maybeTransition(
-                  vehicle.connection,
-                  CONNECTION_TRANSITIONS[vehicle.connection]
-                )
-              : undefined,
-          autonomyState:
-            Math.random() < 0.2
-              ? maybeTransition(
-                  vehicle.autonomyState,
-                  AUTONOMY_TRANSITIONS[vehicle.autonomyState] ?? []
-                )
-              : undefined,
-        });
-      }
-    };
 
     function scheduleNextGeneration() {
         const delayMs = 150 + Math.floor(Math.random() * 500); // 150-650ms
@@ -177,50 +223,7 @@ export function useMockFleetTelemetry({
     scheduleNextGeneration();
 
     const flushTimer = window.setInterval(() => {
-      const pending = pendingMessagesRef.current;
-      if (pending.length === 0) return;
-
-      pendingMessagesRef.current = [];
-
-      let batchResult:
-        | {
-            nextVehicles: Vehicle[];
-            newAlerts: Alert[];
-            newEvents: EventLogItem[];
-          }
-        | undefined;
-
-      setVehicles((prevVehicles) => {
-          const result = applyVehicleTelemetryBatch(prevVehicles, pending);
-          batchResult = result;
-          vehiclesRef.current = result.nextVehicles;
-          return result.nextVehicles;
-        });
-        
-        if (!batchResult) return; 
-        const result = batchResult;
-
-        if (result.newEvents.length > 0) {
-        setEvents((prev) => [...result!.newEvents, ...prev]);
-        }
-
-        setAlerts((prev) => {
-          let next =
-            result.newAlerts.length > 0
-              ? [...result.newAlerts, ...prev]
-              : prev;
-
-          const unacked = next.filter((a) => !a.acked);
-          if (unacked.length > 0 && Math.random() < 0.08) {
-            const toAck = unacked[Math.floor(Math.random() * unacked.length)];
-            next = next.map((a) =>
-              a.id === toAck.id ? { ...a, acked: true } : a
-            );
-          }
-
-          return next;
-        });
-      
+      flushPendingMessages();
     }, 500);
 
     return () => {
@@ -230,7 +233,7 @@ export function useMockFleetTelemetry({
       window.clearInterval(flushTimer);
       pendingMessagesRef.current = [];
     };
-  }, [paused, setVehicles, setEvents, setAlerts]);
+  }, [paused]);
 }
 
 function getEligibleVehicles(vehicles: Vehicle[]) {
